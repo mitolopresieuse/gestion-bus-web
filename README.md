@@ -14,8 +14,8 @@ Cette application web permet de gérer :
 |---------------------|----------------------|
 | Vernelle Mitolo     | Analyste fonctionnel / DBA |
 | Jordy Moundossa   | Développeur frontend (HTML/CSS/JS) |
-| Yannis Makele  | Développeur fbackendend 
-| Viaudo Paul  |   |Responsable réseau
+| Yannis Makele  | Développeur backendend 
+| Viaudo Paul  |Responsable réseau
 Zidane Kiakala | Webdesigner
 
 ## 🛠 Technologies utilisées
