@@ -12,10 +12,11 @@ Cette application web permet de gérer :
 
 | Nom complet         | Rôle                 |
 |---------------------|----------------------|
-| Vernelle Mitolo     | Développeuse PHP / DBA (Base de données) |
-| Nom de camarade 1   | Webdesigner (HTML/CSS) |
-| Nom de camarade 2   | Analyste fonctionnel  |
-| Nom de camarade 3   | Développeur Frontend  |
+| Vernelle Mitolo     | Analyste fonctionnel / DBA |
+| Jordy Moundossa   | Développeur frontend (HTML/CSS/JS) |
+| Yannis Makele  | Développeur fbackendend 
+| Viaudo Paul  |   |Responsable réseau
+Zidane Kiakala | Webdesigner
 
 ## 🛠 Technologies utilisées
 - Backend : PHP
