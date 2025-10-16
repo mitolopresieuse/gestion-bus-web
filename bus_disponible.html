@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>busDisponibles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Barre de navigation -->
+  <nav class="bg-blue-800 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-bus text-2xl text-yellow-400"></i>
+        <span class="text-xl font-bold">Gamma Express</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="hidden md:inline">busDisponibles</span>
+          <button onclick="window.history.back()" class="text-white hover:text-yellow-400">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <main class="container mx-auto px-4 py-6">
+  	<!-- Section Bus -->
+        <section id="buses-section" class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 md:mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">Bus disponibles</h2>
+                <button id="add-bus-btn" class="mt-2 md:mt-0 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm md:text-base">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un bus
+                </button>
+            </div>
+            
+            <div id="bus-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Les bus seront chargés dynamiquement ici -->
+            </div>
+        </section>
+
+        <!-- Modal pour ajouter/modifier un bus -->
+        <div id="bus-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-xl font-semibold text-gray-800">Ajouter un bus</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="bus-form" class="space-y-4">
+                    <input type="hidden" id="bus-id">
+                    <div>
+                        <label for="bus-model" class="block text-sm font-medium text-gray-700 mb-1">Marque/Modèle</label>
+                        <input type="text" id="bus-model" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="bus-plate" class="block text-sm font-medium text-gray-700 mb-1">Plaque d'immatriculation</label>
+                        <input type="text" id="bus-plate" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="bus-capacity" class="block text-sm font-medium text-gray-700 mb-1">Capacité</label>
+                        <input type="number" id="bus-capacity" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="bus-status" class="block text-sm font-medium text-gray-700 mb-1">État</label>
+                        <select id="bus-status" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Neuf">Neuf</option>
+                            <option value="Bon">Bon</option>
+                            <option value="Moyen">Moyen</option>
+                            <option value="Mauvais">Mauvais</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bus-availability" class="block text-sm font-medium text-gray-700 mb-1">Disponibilité</label>
+                        <select id="bus-availability" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Disponible">Disponible</option>
+                            <option value="En maintenance">En maintenance</option>
+                            <option value="Hors service">Hors service</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">Annuler</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stockage des bus (remplacé par localStorage dans une vraie application)
+        let buses = [
+            { id: 1, model: "Mercedes Tourismo", plate: "AB-123-CD", capacity: 50, status: "Neuf", availability: "Disponible" },
+            { id: 2, model: "Volvo 9700", plate: "EF-456-GH", capacity: 45, status: "Bon", availability: "Disponible" }
+        ];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBusList();
+            setupEventListeners();
+        });
+
+        // Écouteurs d'événements
+        function setupEventListeners() {
+            document.getElementById('add-bus-btn').addEventListener('click', () => openModal());
+            document.getElementById('bus-form').addEventListener('submit', handleBusSubmit);
+        }
+
+        // Afficher la liste des bus
+        function renderBusList() {
+            const busList = document.getElementById('bus-list');
+            busList.innerHTML = buses.map(bus => `
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow" data-id="${bus.id}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-lg">${bus.model}</h3>
+                            <p class="text-gray-600 text-sm">${bus.plate}</p>
+                        </div>
+                        <span class="px-2 py-1 ${getAvailabilityClass(bus.availability)} rounded-full text-xs">
+                            ${bus.availability}
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="flex items-center text-sm">
+                            <i class="fas fa-users mr-2 text-gray-500"></i>
+                            Capacité: ${bus.capacity} places
+                        </p>
+                        <p class="flex items-center text-sm">
+                            <i class="fas fa-cogs mr-2 text-gray-500"></i>
+                            État: ${bus.status}
+                        </p>
+                    </div>
+                    <div class="flex space-x-2 mt-4">
+                        <button onclick="editBus(${bus.id})" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded text-sm">
+                            <i class="fas fa-edit mr-1"></i> Modifier
+                        </button>
+                        <button onclick="deleteBus(${bus.id})" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded text-sm">
+                            <i class="fas fa-trash mr-1"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Mettre à jour les autres pages via localStorage
+            updateOtherPages();
+        }
+
+        // Classes CSS pour la disponibilité
+        function getAvailabilityClass(availability) {
+            switch(availability) {
+                case 'Disponible': return 'bg-green-100 text-green-800';
+                case 'En maintenance': return 'bg-yellow-100 text-yellow-800';
+                case 'Hors service': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Ouvrir le modal
+        function openModal(bus = null) {
+            const modal = document.getElementById('bus-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('bus-form');
+            
+            if (bus) {
+                title.textContent = 'Modifier le bus';
+                document.getElementById('bus-id').value = bus.id;
+                document.getElementById('bus-model').value = bus.model;
+                document.getElementById('bus-plate').value = bus.plate;
+                document.getElementById('bus-capacity').value = bus.capacity;
+                document.getElementById('bus-status').value = bus.status;
+                document.getElementById('bus-availability').value = bus.availability;
+            } else {
+                title.textContent = 'Ajouter un bus';
+                form.reset();
+                document.getElementById('bus-id').value = '';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Fermer le modal
+        function closeModal() {
+            document.getElementById('bus-modal').classList.add('hidden');
+        }
+
+        // Gérer la soumission du formulaire
+        function handleBusSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('bus-id').value;
+            const model = document.getElementById('bus-model').value;
+            const plate = document.getElementById('bus-plate').value;
+            const capacity = document.getElementById('bus-capacity').value;
+            const status = document.getElementById('bus-status').value;
+            const availability = document.getElementById('bus-availability').value;
+            
+            const busData = { model, plate, capacity: parseInt(capacity), status, availability };
+            
+            if (id) {
+                // Modification
+                const index = buses.findIndex(b => b.id == id);
+                if (index !== -1) {
+                    buses[index] = { ...busData, id: parseInt(id) };
+                }
+            } else {
+                // Ajout
+                const newId = buses.length > 0 ? Math.max(...buses.map(b => b.id)) + 1 : 1;
+                buses.push({ ...busData, id: newId });
+            }
+            
+            renderBusList();
+            closeModal();
+        }
+
+        // Modifier un bus
+        function editBus(id) {
+            const bus = buses.find(b => b.id == id);
+            if (bus) openModal(bus);
+        }
+
+        // Supprimer un bus
+        function deleteBus(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce bus ?')) {
+                buses = buses.filter(b => b.id != id);
+                renderBusList();
+            }
+        }
+
+        // Mettre à jour les autres pages (simulation)
+        function updateOtherPages() {
+            // Dans une vraie application, on utiliserait localStorage ou une API
+            localStorage.setItem('buses', JSON.stringify(buses));
+            
+            // Pour la démo, on affiche un message dans la console
+            console.log('Mise à jour des autres pages avec les données des bus:', buses);
+        }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Client - GammaExpress</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-bus text-3xl text-yellow-400 mr-2"></i>
+                    <h1 class="text-2xl font-bold">Gamma<span class="text-yellow-400">Express</span></h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-white hover:text-yellow-400">
+                        <i class="fas fa-user-circle text-xl"></i>
+                    </a>
+                    <button onclick="window.location.href='connexion.html'"class="text-white hover:text-yellow-400">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Profil Client -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden md:col-span-1">
+                <div class="bg-blue-700 text-white px-6 py-4">
+                    <h2 class="text-xl font-semibold">Mon Profil</h2>
+                </div>
+                <div class="p-6">
+                    <div id="clientProfile" class="space-y-3">
+                        <!-- Les informations seront chargées dynamiquement -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contenu Principal -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden md:col-span-2">
+                <div class="bg-blue-800 text-white px-6 py-4">
+                    <h2 class="text-xl font-semibold">Espace Client</h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="text-center">
+                        <button onclick="redirectToTicketPurchase()" class="px-8 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300 text-lg font-medium">
+                            <i class="fas fa-ticket-alt mr-2"></i> Acheter un billet
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Historique des achats</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Billet</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trajet</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="purchaseHistory" class="bg-white divide-y divide-gray-200">
+                                    <!-- L'historique sera chargé dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-blue-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-l font-bold">&copy; 2025 Gamma<span class="text-yellow-400">Express</span>. Voyagez en toute sérénité.</h3> 
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+            
+            // Vérifier si l'utilisateur est un client
+            if (currentUser.role === 'admin' || currentUser.role === 'agent') {
+                window.location.href = 'liste_des_utilisateurs.html';
+                return;
+            }
+            
+            // Afficher le profil client
+            const profileContainer = document.getElementById('clientProfile');
+            profileContainer.innerHTML = `
+                <div>
+                    <p class="text-sm text-gray-500">Nom complet</p>
+                    <p class="font-medium">${currentUser.fullname || ''}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="font-medium">${currentUser.email || ''}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Téléphone</p>
+                    <p class="font-medium">${currentUser.phone || ''}</p>
+                </div>
+                <button onclick="editProfile()" class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Modifier le profil
+                </button>
+            `;
+            
+            history.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.trajet}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.prix}</td>
+                `;
+                historyContainer.appendChild(row);
+            });
+        });
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+        
+        function editProfile() {
+            // Fonctionnalité de modification du profil
+            alert('Fonctionnalité de modification du profil à implémenter');
+        }
+        
+        function redirectToTicketPurchase() {
+            // Redirection vers la page d'achat de billets
+            window.location.href = 'reservation.html';
+        }
+    </script>
+</body>
+</html>

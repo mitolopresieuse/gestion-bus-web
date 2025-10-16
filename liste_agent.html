@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Barre de navigation -->
+  <nav class="bg-blue-800 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-bus text-2xl text-yellow-400"></i>
+        <span class="text-xl font-bold">Gamma Express</span>
+      </div>
+        <span class="hidden md:inline">liste agent</span>
+          <button onclick="window.history.back()" class="text-white hover:text-yellow-400">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour
+                </button>
+    </div>
+  </nav>
+            <!-- Formulaire d'ajout/modification -->
+            <div class="w-full lg:w-1/3">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6" id="formTitle">Ajouter un Agent</h2>
+                    
+                    <form id="agentForm" class="space-y-4">
+                        <input type="hidden" id="agentId">
+                        
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                            <input type="text" id="fullName" name="fullName" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                            <input type="tel" id="phone" name="phone" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="agency" class="block text-sm font-medium text-gray-700 mb-1">Agence</label>
+                            <select id="agency" name="agency" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Sélectionner une agence</option>
+                                <option value="Agence Centrale">Agence Centrale</option>
+                                <option value="Agence Nord">Agence Nord</option>
+                                <option value="Agence Sud">Agence Sud</option>
+                                <option value="Agence Est">Agence Est</option>
+                                <option value="Agence Ouest">Agence Ouest</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                            <select id="status" name="status" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Actif">Actif</option>
+                                <option value="Inactif">Inactif</option>
+                                <option value="En congé">En congé</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex space-x-3 pt-2">
+                            <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition">
+                                Enregistrer
+                            </button>
+                            <button type="button" id="cancelBtn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md transition hidden">
+                                Annuler
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tableau des agents -->
+            <div class="w-full lg:w-2/3">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-800">Liste des Agents</h2>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Rechercher..." 
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agence</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Le tableau sera rempli dynamiquement -->
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun agent enregistré</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            <span id="showingText">0 agent</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prevPage" class="px-3 py-1 border rounded-md text-gray-700 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="nextPage" class="px-3 py-1 border rounded-md text-gray-700 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Confirmer la suppression</h3>
+            <p class="text-gray-600 mb-6">Êtes-vous sûr de vouloir supprimer cet agent ? Cette action est irréversible.</p>
+            <div class="flex justify-end space-x-3">
+                <button id="cancelDelete" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700">
+                    Annuler
+                </button>
+                <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables pour la gestion des données
+        let agents = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let filteredAgents = [];
+        let agentToDelete = null;
+
+        // Éléments DOM
+        const form = document.getElementById('agentForm');
+        const agentsTable = document.getElementById('agentsTable');
+        const searchInput = document.getElementById('searchInput');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const showingText = document.getElementById('showingText');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+        const confirmModal = document.getElementById('confirmModal');
+        const cancelDeleteBtn = document.getElementById('cancelDelete');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            // ICI: Vous pouvez charger les données initiales depuis votre backend
+            // Exemple: loadInitialData();
+            
+            // Événements
+            form.addEventListener('submit', handleFormSubmit);
+            searchInput.addEventListener('input', handleSearch);
+            prevPageBtn.addEventListener('click', () => {
+                currentPage--;
+                renderAgents();
+                updatePagination();
+            });
+            nextPageBtn.addEventListener('click', () => {
+                currentPage++;
+                renderAgents();
+                updatePagination();
+            });
+            cancelBtn.addEventListener('click', resetForm);
+            cancelDeleteBtn.addEventListener('click', () => confirmModal.classList.add('hidden'));
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+        });
+
+        // ICI: Fonction pour charger les données initiales depuis votre backend
+        /*
+        async function loadInitialData() {
+            try {
+                const response = await fetch('/api/agents');
+                agents = await response.json();
+                filteredAgents = [...agents];
+                renderAgents();
+                updatePagination();
+            } catch (error) {
+                console.error("Erreur lors du chargement des agents:", error);
+            }
+        }
+        */
+
+        // Afficher les agents dans le tableau
+        function renderAgents() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedAgents = filteredAgents.slice(start, end);
+            
+            if (paginatedAgents.length === 0) {
+                agentsTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            ${filteredAgents.length === 0 ? 'Aucun agent trouvé' : 'Aucun agent sur cette page'}
+                        </td>
+                    </tr>
+                `;
+            } else {
+                agentsTable.innerHTML = paginatedAgents.map(agent => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900">${agent.fullName}</div>
+                            <div class="text-sm text-gray-500">${agent.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${agent.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${agent.agency}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                ${getStatusClass(agent.status)}">
+                                ${agent.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="editAgent(${agent.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="showDeleteModal(${agent.id})" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Mettre à jour le texte d'affichage
+            const total = filteredAgents.length;
+            const startItem = total === 0 ? 0 : start + 1;
+            const endItem = Math.min(end, total);
+            showingText.textContent = `Affichage de ${startItem} à ${endItem} sur ${total} agent${total !== 1 ? 's' : ''}`;
+        }
+
+        // Gestion du formulaire
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: document.getElementById('agentId').value,
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                agency: document.getElementById('agency').value,
+                status: document.getElementById('status').value
+            };
+            
+            if (formData.id) {
+                // Modification d'un agent existant
+                const index = agents.findIndex(a => a.id == formData.id);
+                if (index !== -1) {
+                    agents[index] = { ...agents[index], ...formData };
+                    
+                    // ICI: Envoyer la modification au backend
+                    // Exemple: updateAgentInBackend(agents[index]);
+                }
+            } else {
+                // Ajout d'un nouvel agent
+                const newId = agents.length > 0 ? Math.max(...agents.map(a => a.id)) + 1 : 1;
+                const newAgent = { id: newId, ...formData };
+                agents.push(newAgent);
+                
+                // ICI: Envoyer le nouvel agent au backend
+                // Exemple: addAgentToBackend(newAgent);
+            }
+            
+            // Réinitialiser le formulaire et rafraîchir le tableau
+            resetForm();
+            filteredAgents = [...agents];
+            currentPage = Math.ceil(agents.length / itemsPerPage) || 1;
+            renderAgents();
+            updatePagination();
+        }
+
+        // ICI: Fonction pour ajouter un agent dans le backend
+        /*
+        async function addAgentToBackend(agent) {
+            try {
+                const response = await fetch('/api/agents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(agent)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Erreur lors de l'ajout de l'agent:", error);
+            }
+        }
+        */
+
+        // ICI: Fonction pour mettre à jour un agent dans le backend
+        /*
+        async function updateAgentInBackend(agent) {
+            try {
+                const response = await fetch(`/api/agents/${agent.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(agent)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de l'agent:", error);
+            }
+        }
+        */
+
+        // Éditer un agent
+        window.editAgent = function(id) {
+            const agent = agents.find(a => a.id == id);
+            if (agent) {
+                document.getElementById('agentId').value = agent.id;
+                document.getElementById('fullName').value = agent.fullName;
+                document.getElementById('email').value = agent.email;
+                document.getElementById('phone').value = agent.phone;
+                document.getElementById('agency').value = agent.agency;
+                document.getElementById('status').value = agent.status;
+                
+                formTitle.textContent = "Modifier l'Agent";
+                submitBtn.textContent = "Mettre à jour";
+                cancelBtn.classList.remove('hidden');
+            }
+        }
+
+        // Afficher le modal de suppression
+        window.showDeleteModal = function(id) {
+            agentToDelete = id;
+            confirmModal.classList.remove('hidden');
+        }
+
+        // Confirmer la suppression
+        async function confirmDelete() {
+            if (agentToDelete) {
+                // ICI: Supprimer l'agent du backend
+                // Exemple: await deleteAgentFromBackend(agentToDelete);
+                
+                agents = agents.filter(a => a.id != agentToDelete);
+                filteredAgents = filteredAgents.filter(a => a.id != agentToDelete);
+                
+                // Ajuster la pagination si nécessaire
+                if (filteredAgents.length <= (currentPage - 1) * itemsPerPage && currentPage > 1) {
+                    currentPage--;
+                }
+                
+                renderAgents();
+                updatePagination();
+                confirmModal.classList.add('hidden');
+                agentToDelete = null;
+            }
+        }
+
+        // ICI: Fonction pour supprimer un agent du backend
+        /*
+        async function deleteAgentFromBackend(agentId) {
+            try {
+                const response = await fetch(`/api/agents/${agentId}`, {
+                    method: 'DELETE'
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Erreur lors de la suppression de l'agent:", error);
+            }
+        }
+        */
+
+        // Réinitialiser le formulaire
+        function resetForm() {
+            form.reset();
+            document.getElementById('agentId').value = '';
+            formTitle.textContent = "Ajouter un Agent";
+            submitBtn.textContent = "Enregistrer";
+            cancelBtn.classList.add('hidden');
+        }
+
+        // Gestion de la recherche
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            filteredAgents = agents.filter(agent => 
+                agent.fullName.toLowerCase().includes(searchTerm) ||
+                agent.email.toLowerCase().includes(searchTerm) ||
+                agent.phone.toLowerCase().includes(searchTerm) ||
+                agent.agency.toLowerCase().includes(searchTerm) ||
+                agent.status.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderAgents();
+            updatePagination();
+        }
+
+        // Mettre à jour les boutons de pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredAgents.length / itemsPerPage);
+            
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Classe CSS pour le statut
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Actif': return 'bg-green-100 text-green-800';
+                case 'Inactif': return 'bg-red-100 text-red-800';
+                case 'En congé': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+    </script>
+</body>
+</html>

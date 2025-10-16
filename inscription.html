@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enregistrement Client - GammaExpress</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-bus text-3xl text-yellow-400 mr-2"></i>
+                    <h1 class="text-2xl font-bold">Gamma<span class="text-yellow-400">Express</span></h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex justify-center">
+        <div class="w-full max-w-md bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
+            <div class="bg-blue-700 text-white px-6 py-4">
+                <h2 class="text-xl font-semibold">Inscription Client</h2>
+            </div>
+            
+            <form id="registrationForm" class="p-6 space-y-4">
+                <div class="space-y-4">
+                    <div>
+                        <label for="fullname" class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                        <input type="text" id="fullname" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                        <input type="tel" id="phone" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                        <div class="relative">
+                            <input type="password" id="password" required
+                                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                            <button type="button" onclick="togglePassword('password')" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
+                                <i id="passwordEye" class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" required
+                                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                            <button type="button" onclick="togglePassword('confirmPassword')" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
+                                <i id="confirmPasswordEye" class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" id="terms" required class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="text-gray-600">
+                                J'accepte les <a href="#" class="text-blue-600 hover:underline">conditions d'utilisation</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2 space-y-3">
+                        <button type="button" onclick="window.history.back()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            S'inscrire
+                        </button>
+                        
+                        <button type="button" onclick="window.history.back()" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Annuler
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-sm text-gray-600">
+                        Déjà un compte? <a href="Connexion.html" class="text-blue-600 hover:underline">Connectez-vous</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="bg-blue-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-l font-bold">&copy; 2025 Gamma<span class="text-yellow-400">Express</span>. Voyagez en toute sérénité.</h3> 
+        </div>
+    </footer>
+
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(fieldId + 'Eye');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                field.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert("Les mots de passe ne correspondent pas!");
+                return;
+            }
+            
+            const userData = {
+                fullname: fullname,
+                email: email,
+                phone: phone,
+                role: 'client'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            
+        });
+        
+        
+       function sendToPage(userData, targetPage) {
+  // Stocker les données dans localStorage
+  localStorage.setItem('currentUserProfile', JSON.stringify(userData));
+
+  // Rediriger vers la page cible (ex : client.html ou liste-des-utilisateurs.html)
+  window.location.href = targetPage;
+}
+    </script>
+</body>
+</html>

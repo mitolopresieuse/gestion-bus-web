@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>liste_des_passager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Barre de navigation -->
+  <nav class="bg-blue-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-bus text-2xl text-yellow-400"></i>
+        <span class="text-xl font-bold">Gamma Express</span>
+      </div>
+      <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+        <span class="hidden md:inline">Passagers</span>
+        <button onclick="window.history.back()" class="text-white hover:text-yellow-400">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour
+                </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- Bouton de réservation -->
+    <div class="mb-6 flex justify-end">
+      <a href="reservation.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+        <i class="fas fa-plus-circle mr-2"></i>Réserver un billet
+      </a>
+    </div>
+
+    <!-- Tableau des réservations -->
+    <section class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+      <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">Liste des Réservations</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left">Nom complet</th>
+              <th class="px-3 py-2 text-left">Téléphone</th>
+              <th class="px-3 py-2 text-left">Départ</th>
+              <th class="px-3 py-2 text-left">Destination</th>
+              <th class="px-3 py-2 text-left">Date</th>
+              <th class="px-3 py-2 text-left">Heure</th>
+              <th class="px-3 py-2 text-left">Passagers</th>
+              <th class="px-3 py-2 text-left">Paiement</th>
+              <th class="px-3 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reservationTableBody" class="bg-white divide-y divide-gray-200">
+            <!-- Les réservations s'ajouteront ici -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Variable pour suivre la ligne en cours de modification
+    let ligneEnCoursDeModification = null;
+
+    // Charger les réservations depuis le localStorage au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+      chargerReservations();
+    });
+
+    // Fonction pour charger les réservations depuis le localStorage
+    function chargerReservations() {
+      const reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+      const tableBody = document.getElementById("reservationTableBody");
+      tableBody.innerHTML = ''; // Vider le tableau avant de recharger
+
+      reservations.forEach(reservation => {
+        ajouterLigneReservation(reservation);
+      });
+    }
+
+    // Fonction pour ajouter une ligne de réservation
+    function ajouterLigneReservation(reservation) {
+      const tableBody = document.getElementById("reservationTableBody");
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td class="px-3 py-2">${reservation.nomComplet}</td>
+        <td class="px-3 py-2">${reservation.telephone}</td>
+        <td class="px-3 py-2">${reservation.villeDepart}</td>
+        <td class="px-3 py-2">${reservation.villeArrivee}</td>
+        <td class="px-3 py-2">${reservation.dateVoyage}</td>
+        <td class="px-3 py-2">${reservation.heureDepart}</td>
+        <td class="px-3 py-2 text-center">${reservation.nbPassagers}</td>
+        <td class="px-3 py-2">${reservation.paiement}</td>
+        <td class="px-3 py-2">
+          <button onclick="modifierLigne(this)" class="text-yellow-500 hover:text-yellow-700 mr-2">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button onclick="supprimerLigne(this)" class="text-red-500 hover:text-red-700">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      `;
+
+      tableBody.appendChild(row);
+    }
+
+    function supprimerLigne(bouton) {
+      const ligne = bouton.closest("tr");
+      const nomComplet = ligne.cells[0].textContent;
+      const telephone = ligne.cells[1].textContent;
+      
+      // Supprimer du localStorage
+      let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+      reservations = reservations.filter(res => 
+        !(res.nomComplet === nomComplet && res.telephone === telephone)
+      );
+      localStorage.setItem('reservations', JSON.stringify(reservations));
+      
+      ligne.remove();
+      if (ligne === ligneEnCoursDeModification) resetForm();
+    }
+
+    function modifierLigne(bouton) {
+      const ligne = bouton.closest("tr");
+      const cells = ligne.querySelectorAll("td");
+
+      // Remplir le formulaire de réservation avec les données de la ligne
+      document.getElementById("nomComplet").value = cells[0].textContent;
+      document.getElementById("telephone").value = cells[1].textContent;
+      document.getElementById("villeDepart").value = cells[2].textContent;
+      document.getElementById("villeArrivee").value = cells[3].textContent;
+      document.getElementById("dateVoyage").value = cells[4].textContent;
+      document.getElementById("heureDepart").value = cells[5].textContent;
+      document.getElementById("nbPassagers").value = cells[6].textContent;
+      document.getElementById("paiement").value = cells[7].textContent;
+
+      ligneEnCoursDeModification = ligne;
+
+      // Mettre à jour le bouton d'action
+      const btn = document.getElementById("actionBtn");
+      btn.textContent = "Mettre à jour";
+      btn.classList.remove("bg-green-500", "hover:bg-green-600");
+      btn.classList.add("bg-yellow-500", "hover:bg-yellow-600");
+      btn.onclick = updateReservation;
+    }
+
+    function updateReservation() {
+      if (!ligneEnCoursDeModification) return;
+
+      // Récupérer les valeurs du formulaire
+      const nomComplet = document.getElementById("nomComplet").value.trim();
+      const telephone = document.getElementById("telephone").value.trim();
+      const villeDepart = document.getElementById("villeDepart").value.trim();
+      const villeArrivee = document.getElementById("villeArrivee").value.trim();
+      const dateVoyage = document.getElementById("dateVoyage").value.trim();
+      const heureDepart = document.getElementById("heureDepart").value.trim();
+      const nbPassagers = document.getElementById("nbPassagers").value.trim();
+      const paiement = document.getElementById("paiement").value.trim();
+
+      // Mettre à jour le localStorage
+      let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+      const index = reservations.findIndex(res => 
+        res.nomComplet === ligneEnCoursDeModification.cells[0].textContent && 
+        res.telephone === ligneEnCoursDeModification.cells[1].textContent
+      );
+      
+      if (index !== -1) {
+        reservations[index] = { 
+          nomComplet, 
+          telephone, 
+          villeDepart, 
+          villeArrivee, 
+          dateVoyage, 
+          heureDepart, 
+          nbPassagers, 
+          paiement 
+        };
+        localStorage.setItem('reservations', JSON.stringify(reservations));
+      }
+
+      // Mettre à jour la ligne
+      const cells = ligneEnCoursDeModification.querySelectorAll("td");
+      cells[0].textContent = nomComplet;
+      cells[1].textContent = telephone;
+      cells[2].textContent = villeDepart;
+      cells[3].textContent = villeArrivee;
+      cells[4].textContent = dateVoyage;
+      cells[5].textContent = heureDepart;
+      cells[6].textContent = nbPassagers;
+      cells[7].textContent = paiement;
+
+      resetForm();
+      window.location.href = 'liste_des_reservations.html';
+    }
+
+    function resetForm() {
+      // Cette fonction sera implémentée dans reservation.html
+    }
+  </script>
+</body>
+</html>

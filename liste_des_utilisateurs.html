@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Animation pour les notifications */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Style personnalisé pour les inputs invalides */
+        .invalid-input {
+            border-color: #f87171;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.3);
+        }
+        
+        /* Transition pour le formulaire */
+        .form-transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                </div>
+            <h1 class="text-2xl font-bold text-white -700">Gestion des Utilisateurs</h1>
+            <button onclick="window.history.back()" class="text-white hover:text-yellow-400">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour
+                </button>
+            </div>
+            
+        </div>
+    </header>
+        
+
+        <!-- Notification -->
+        <div id="notification" class="hidden fixed top-4 right-4 z-50"></div>
+
+        <!-- Contenu principal -->
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Section Liste des utilisateurs -->
+            <div class="w-full lg:w-2/3">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-gray-800">Liste des Utilisateurs</h2>
+                        <button id="refreshBtn" class="text-indigo-600 hover:text-indigo-800 transition-colors">
+                            <i class="fas fa-sync-alt"></i> Actualiser
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom Complet</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Les utilisateurs seront chargés ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ajouter une section Formulaire d’utilisateur -->
+            <div class="w-full lg:w-1/3">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden form-transition">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800" id="formTitle">Ajouter un Utilisateur</h2>
+                    </div>
+                    <div class="p-6">
+                        <form id="userForm" class="space-y-4">
+                            <input type="hidden" id="userId">
+                            <div>
+                                <label for="fullName" class="block text-sm font-medium text-gray-700">Nom Complet</label>
+                                <input type="text" id="fullName" name="fullName" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
+                                <input type="email" id="email" name="email" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="phone" id="phone" name="phone" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+                                <input type="password" id="password" name="password" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirmation du mot de passe</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <p id="passwordError" class="mt-1 text-sm text-red-600 hidden">Les mots de passe ne correspondent pas.</p>
+                            </div>
+                            <div class="flex space-x-4 pt-2">
+                                <button type="submit" id="submitBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Enregistrer
+                                </button>
+                                <button type="button" id="cancelBtn" class="hidden inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- Footer -->
+  <footer class="text-center py-4 text-sm text-black-600 dark:text-black-400 border-t border-bue-800 dark:border-blue-800">
+    <h3 class="text-l font-bold">&copy; 2025 Gamma<span class="text-yellow-400">Express</span>. Voyagez en toute sérénité.</h3> 
+  </footer>
+
+    <script>
+        // Stockage des utilisateurs dans localStorage (simulation de base de données)
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify([
+                
+            ]));
+        }
+
+        // DOM Elements
+        const userForm = document.getElementById('userForm');
+        const userTableBody = document.getElementById('userTableBody');
+        const fullNameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordError = document.getElementById('passwordError');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const formTitle = document.getElementById('formTitle');
+        const notification = document.getElementById('notification');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const userIdInput = document.getElementById('userId');
+
+        // Variables d'état
+        let isEditing = false;
+        let currentUserId = null;
+
+        // Charger les utilisateurs au démarrage
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+            
+            // Écouter les changements dans localStorage (pour la synchronisation entre pages)
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'users') {
+                    loadUsers();
+                    showNotification('Liste des utilisateurs actualisée', 'success');
+                }
+            });
+        });
+
+        // Gestion du formulaire
+        userForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Validation des mots de passe
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                passwordInput.classList.add('invalid-input');
+                confirmPasswordInput.classList.add('invalid-input');
+                passwordError.classList.remove('hidden');
+                return;
+            } else {
+                passwordInput.classList.remove('invalid-input');
+                confirmPasswordInput.classList.remove('invalid-input');
+                passwordError.classList.add('hidden');
+            }
+            
+            const user = {
+                fullName: fullNameInput.value,
+                email: emailInput.value,
+                phone: phoneInput.value,
+                password: passwordInput.value
+            };
+            
+            if (isEditing) {
+                updateUser(currentUserId, user);
+            } else {
+                addUser(user);
+            }
+            
+            resetForm();
+        });
+
+        // Gestion de l'annulation
+        cancelBtn.addEventListener('click', resetForm);
+
+        // Gestion du rafraîchissement
+        refreshBtn.addEventListener('click', () => {
+            loadUsers();
+            showNotification('Liste actualisée', 'info');
+        });
+
+        // Fonction pour charger les utilisateurs
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users'));
+            userTableBody.innerHTML = '';
+            
+            if (users && users.length > 0) {
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.fullName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.phone}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editUser(${user.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            } else {
+                userTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Aucun utilisateur trouvé
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Fonction pour ajouter un utilisateur
+        function addUser(user) {
+            const users = JSON.parse(localStorage.getItem('users'));
+            const newUser = {
+                id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                ...user
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            loadUsers();
+            showNotification('Utilisateur ajouté avec succès', 'success');
+            
+            // Envoyer également vers client.html (simulation)
+            sendToClientPage(newUser);
+        }
+
+        // Fonction pour modifier un utilisateur
+        function updateUser(id, updatedUser) {
+            let users = JSON.parse(localStorage.getItem('users'));
+            users = users.map(user => 
+                user.id === id ? { ...user, ...updatedUser } : user
+            );
+            
+            localStorage.setItem('users', JSON.stringify(users));
+            loadUsers();
+            showNotification('Utilisateur modifié avec succès', 'success');
+            
+            // Envoyer également vers client.html (simulation)
+            const updatedUserData = { id, ...updatedUser };
+            sendToClientPage(updatedUserData);
+        }
+
+        // Fonction pour supprimer un utilisateur
+        function deleteUser(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                let users = JSON.parse(localStorage.getItem('users'));
+                users = users.filter(user => user.id !== id);
+                
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+                showNotification('Utilisateur supprimé avec succès', 'success');
+            }
+        }
+
+        // Fonction pour éditer un utilisateur
+        window.editUser = function(id) {
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(u => u.id === id);
+            
+            if (user) {
+                isEditing = true;
+                currentUserId = id;
+                
+                fullNameInput.value = user.fullName;
+                emailInput.value = user.email;
+                phoneInput.value = user.phone;
+                passwordInput.value = user.password;
+                confirmPasswordInput.value = user.password;
+                
+                formTitle.textContent = 'Modifier l\'Utilisateur';
+                submitBtn.textContent = 'Mettre à jour';
+                cancelBtn.classList.remove('hidden');
+                
+                // Faire défiler jusqu'au formulaire
+                document.querySelector('.form-transition').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        // Fonction pour réinitialiser le formulaire
+        function resetForm() {
+            userForm.reset();
+            isEditing = false;
+            currentUserId = null;
+            
+            formTitle.textContent = 'Ajouter un Utilisateur';
+            submitBtn.textContent = 'Enregistrer';
+            cancelBtn.classList.add('hidden');
+            
+            // Supprimer les styles d'erreur
+            passwordInput.classList.remove('invalid-input');
+            confirmPasswordInput.classList.remove('invalid-input');
+            passwordError.classList.add('hidden');
+        }
+
+        // Fonction pour afficher les notifications
+        function showNotification(message, type) {
+            const types = {
+                success: 'bg-green-100 border-green-400 text-green-700',
+                error: 'bg-red-100 border-red-400 text-red-700',
+                info: 'bg-blue-100 border-blue-400 text-blue-700',
+                warning: 'bg-yellow-100 border-yellow-400 text-yellow-700'
+            };
+            
+            notification.className = `${types[type]} border px-4 py-3 rounded relative fade-in`;
+            notification.innerHTML = `
+                <span class="block sm:inline">${message}</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.classList.add('hidden')">
+                    <i class="fas fa-times"></i>
+                </span>
+            `;
+            notification.classList.remove('hidden');
+            
+            // Masquer la notification après 5 secondes
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Fonction pour envoyer les données vers client.html (simulation)
+        function sendToClientPage(userData) {
+            // Dans une application réelle, vous utiliseriez peut-être :
+            // - Une API backend
+            // - Un state management (Redux, Vuex, etc.)
+            // - Des paramètres d'URL ou sessionStorage
+            
+            // Pour cette démo, nous stockons simplement dans localStorage
+            localStorage.setItem('currentUserProfile', JSON.stringify(userData));
+            
+            // Simuler l'envoi vers client.html
+            console.log('Données envoyées vers client.html:', userData);
+        }
+    </script>
+</body>
+</html>

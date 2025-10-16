@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Barre de navigation -->
+  <nav class="bg-blue-800 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-bus text-2xl text-yellow-400"></i>
+        <span class="text-xl font-bold">Gamma Express</span>
+      </div>
+        <span class="hidden md:inline">trajets</span>
+          <button onclick="window.history.back()" class="text-white hover:text-yellow-400">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour
+                </button>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <main class="container mx-auto px-4 py-6">
+      <!-- Bouton pour afficher le formulaire -->
+      <button onclick="toggleForm()" class="mb-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+        <i class="fas fa-plus"></i> Ajouter un nouveau trajet
+      </button>
+
+      <!-- Formulaire -->
+      <div id="formTrajet" class="hidden bg-gray-50 p-4 rounded-lg mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <input type="text" id="depart" placeholder="Départ" class="border p-2 rounded w-full" />
+          <input type="text" id="arrivee" placeholder="Arrivée" class="border p-2 rounded w-full" />
+          <input type="date" id="date" class="border p-2 rounded w-full" />
+          <input type="time" id="heure" class="border p-2 rounded w-full" />
+          <select id="bus" class="border p-2 rounded w-full">
+            <option value="">Sélectionner un bus</option>
+          </select>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button id="submitBtn" onclick="ajouterTrajet()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+
+      <!-- Tableau -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left">Départ</th>
+              <th class="px-3 py-2 text-left">Arrivée</th>
+              <th class="px-3 py-2 text-left">Date</th>
+              <th class="px-3 py-2 text-left">Heure</th>
+              <th class="px-3 py-2 text-left">Bus</th>
+              <th class="px-3 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="listeTrajets" class="bg-white divide-y divide-gray-200">
+            <!-- Les trajets s'affichent ici -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let trajetEnCours = null;
+
+    // Charger les bus depuis localStorage
+    const busDisponibles = JSON.parse(localStorage.getItem("busDisponibles")) || [];
+    const busSelect = document.getElementById("bus");
+    busDisponibles.forEach(bus => {
+      const option = document.createElement("option");
+      option.value = bus;
+      option.textContent = bus;
+      busSelect.appendChild(option);
+});
+
+    // Affichage du formulaire
+    function toggleForm() {
+      document.getElementById("formTrajet").classList.toggle("hidden");
+      resetForm();
+}
+
+    // Ajouter ou mettre à jour un trajet
+    function ajouterTrajet() {
+      const depart = document.getElementById("depart").value.trim();
+      const arrivee = document.getElementById("arrivee").value.trim();
+      const date = document.getElementById("date").value;
+      const heure = document.getElementById("heure").value;
+      const bus = document.getElementById("bus").value;
+      if (!depart ||!arrivee ||!date ||!heure ||!bus) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+}
+
+      if (trajetEnCours) {
+        // Mise à jour
+        const cells = trajetEnCours.querySelectorAll("td");
+        cells[0].textContent = depart;
+        cells[1].textContent = arrivee;
+        cells[2].textContent = date;
+        cells[3].textContent = heure;
+        cells[4].textContent = bus;
+} else {
+        // Création
+        const tbody = document.getElementById("listeTrajets");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="px-3 py-2">${depart}</td>
+          <td class="px-3 py-2">${arrivee}</td>
+          <td class="px-3 py-2">${date}</td>
+          <td class="px-3 py-2">${heure}</td>
+          <td class="px-3 py-2">${bus}</td>
+          <td class="px-3 py-2">
+            <button onclick="modifierTrajet(this)" class="text-yellow-500 hover:text-yellow-700 mr-2"><i class="fas fa-edit"></i></button>
+            <button onclick="supprimerTrajet(this)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+          </td>
+        `;
+        tbody.appendChild(row);
+}
+
+      sauvegarderTrajets();
+      resetForm();
+      document.getElementById("formTrajet").classList.add("hidden");
+}
+
+    // Modifier une ligne
+    function modifierTrajet(bouton) {
+      const ligne = bouton.closest("tr");
+      const cells = ligne.querySelectorAll("td");
+
+      document.getElementById("depart").value = cells[0].textContent;
+      document.getElementById("arrivee").value = cells[1].textContent;
+      document.getElementById("date").value = cells[2].textContent;
+      document.getElementById("heure").value = cells[3].textContent;
+      document.getElementById("bus").value = cells[4].textContent;
+
+      trajetEnCours = ligne;
+      document.getElementById("formTrajet").classList.remove("hidden");
+}
+
+    // Supprimer une ligne
+    function supprimerTrajet(bouton) {
+      const ligne = bouton.closest("tr");
+      ligne.remove();
+      sauvegarderTrajets();
+}
+
+    // Réinitialiser le formulaire
+    function resetForm() {
+      document.getElementById("depart").value = "";
+      document.getElementById("arrivee").value = "";
+      document.getElementById("date").value = "";
+      document.getElementById("heure").value = "";
+      document.getElementById("bus").selectedIndex = 0;
+      trajetEnCours = null;
+}
+      
+    // Sauvegarder les trajets pour le tableau de bord
+    function sauvegarderTrajets() {
+      const lignes = document.querySelectorAll("#listeTrajets tr");
+      const trajets = [];
+      lignes.forEach(ligne => {
+        const cells = ligne.querySelectorAll("td");
+        trajets.push({
+          depart: cells[0].textContent,
+          arrivee: cells[1].textContent,
+          date: cells[2].textContent,
+          heure: cells[3].textContent,
+          bus: cells[4].textContent
+});
+});
+      localStorage.setItem("listeTrajets", JSON.stringify(trajets));
+}
+
+    // Charger les trajets depuis le stockage
+    window.onload = () => {
+      const trajetsSauvegardés = JSON.parse(localStorage.getItem("listeTrajets")) || [];
+      const tbody = document.getElementById("listeTrajets");
+
+      trajetsSauvegardés.forEach(trajet => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="px-3 py-2">${trajet.depart}</td>
+          <td class="px-3 py-2">${trajet.arrivee}</td>
+          <td class="px-3 py-2">${trajet.date}</td>
+          <td class="px-3 py-2">${trajet.heure}</td>
+          <td class="px-3 py-2">${trajet.bus}</td>
+          <td class="px-3 py-2">
+            <button onclick="modifierTrajet(this)" class="text-yellow-500 hover:text-yellow-700 mr-2">
+			  <i class="fas fa-edit"></i>
+			</button>
+			<button onclick="supprimerTrajet(this)" class="text-red-500 hover:text-red-700">
+			  <i class="fas fa-trash-alt"></i>
+			</button>
+		  </td>
+`;
+       const busDisponibles = JSON.parse(localStorage.getItem("busDisponibles")) || [];
+        tbody.appendChild(row);
+});
+};
+  </script>
+</body>
+</html>

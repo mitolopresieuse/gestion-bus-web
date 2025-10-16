@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Gamma Express</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        @media (min-width: 1024px) {
+            .mobile-menu {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Mobile -->
+        <div id="mobile-menu" class="mobile-menu fixed inset-y-0 left-0 z-40 w-64 bg-blue-800 text-white overflow-y-auto lg:relative lg:translate-x-0">
+            <div class="p-4 border-b border-blue-700 flex justify-between items-center">
+                <h1 class="text-xl font-bold">Gamma Express</h1>
+                <button class="lg:hidden text-white" id="close-mobile-menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- User Profile in Sidebar -->
+            <div class="p-4 border-b border-blue-700 flex items-center space-x-3">
+                <img src="https://ui-avatars.com/api/?name=Admin" alt="Admin" class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="font-medium">Administrateur</p>
+                    <p class="text-xs text-blue-200">Super Admin</p>
+                </div>
+            </div>
+            
+            <nav class="p-4">
+                <ul>
+                    <li class="mb-2">
+                        <a href="#" data-view="dashboard" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-tachometer-alt mr-3"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a onclick="window.location.href='bus_disponible.html'" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-bus w-6"></i>
+                            <span>Gestion des bus</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a onclick="window.location.href='trajets.html'" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-route mr-3"></i>
+                            <span>Gestion des trajets</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a onclick="window.location.href='passager.html'" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-users mr-3"></i>
+                            <span>Gestion des passagers</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a onclick="window.location.href='reservation.html'" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-ticket-alt mr-3"></i>
+                            <span>Réservations</span>
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a onclick="window.location.href='liste_agent.html'" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-user-shield mr-3"></i>
+                            <span>Gestion des agents</span>
+                        </a>
+                    </li>
+                    <li class="mt-8 pt-4 border-t border-blue-700">
+                        <button onclick="window.location.href='connexion.html'" class="w-full flex items-center justify-center p-2 rounded hover:bg-blue-700 text-red-400 hover:text-red-300">
+                            <i class="fas fa-sign-out-alt mr-3"></i>
+                            <span>Déconnexion</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="flex-1 overflow-auto">
+            <header class="bg-blue-800 shadow-sm p-4 flex justify-between items-center">
+                <!-- Mobile menu button à droite -->
+                <button id="mobile-menu-button" class="lg:hidden p-2 rounded-md bg-blue-700 text-white hover:bg-blue-800">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <h2 id="page-title" class="text-xl font-semibold text-white"><i class="fas fa-bus text-2xl text-yellow-400"></i>
+                <span class="text-2xl font-bold">Gamma Express</span> </h2>
+                <!-- Espace vide pour équilibrer le flex -->
+                <div class="w-10"></div>
+            </header>
+
+            <!-- Vues principales -->
+            <main class="p-4 md:p-6">
+                <!-- Vue Tableau de bord -->
+                <div id="dashboard-view" class="view">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Tableau de bord</h2>
+                        <button id="export-pdf" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Exporter en PDF
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-container">
+                        <!-- Statistiques principales -->
+                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Réservations aujourd'hui</h3>
+                                    <p class="text-2xl font-bold mt-1" id="today-reservations">0</p>
+                                    <p class="text-xs text-gray-500 mt-1">vs hier: <span id="reservation-change" class="font-medium">0%</span></p>
+                                </div>
+                                <i class="fas fa-calendar-check text-blue-400 text-xl"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg border border-green-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Passagers aujourd'hui</h3>
+                                    <p class="text-2xl font-bold mt-1" id="today-passengers">0</p>
+                                    <p class="text-xs text-gray-500 mt-1">vs hier: <span id="passenger-change" class="font-medium">0%</span></p>
+                                </div>
+                                <i class="fas fa-users text-green-400 text-xl"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 p-6 rounded-lg border border-purple-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Revenus aujourd'hui</h3>
+                                    <p class="text-2xl font-bold mt-1" id="today-revenue">0 FCFA</p>
+                                    <p class="text-xs text-gray-500 mt-1">vs hier: <span id="revenue-change" class="font-medium">0%</span></p>
+                                </div>
+                                <i class="fas fa-money-bill-wave text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 p-6 rounded-lg border border-orange-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Taux d'occupation</h3>
+                                    <p class="text-2xl font-bold mt-1" id="occupation-rate">0%</p>
+                                    <p class="text-xs text-gray-500 mt-1">moyenne journalière</p>
+                                </div>
+                                <i class="fas fa-chart-line text-orange-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Dernières réservations -->
+                        <div class="bg-white p-4 rounded-lg border">
+                            <h3 class="text-lg font-semibold mb-4">Dernières réservations</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">N° Réservation</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Passager</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trajet</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="recent-reservations">
+                                        <tr>
+                                            <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">Aucune réservation récente</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Statistiques des bus -->
+                        <div class="bg-white p-4 rounded-lg border">
+                            <h3 class="text-lg font-semibold mb-4">Statistiques des bus</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-500">Bus en circulation</h4>
+                                    <p class="text-xl font-bold mt-1" id="active-buses">0</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-500">Bus disponibles</h4>
+                                    <p class="text-xl font-bold mt-1" id="available-buses">0</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-500">Bus en maintenance</h4>
+                                    <p class="text-xl font-bold mt-1" id="maintenance-buses">0</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-500">Capacité totale</h4>
+                                    <p class="text-xl font-bold mt-1" id="total-capacity">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prochains départs -->
+                    <div class="bg-white p-4 rounded-lg border mb-6">
+                        <h3 class="text-lg font-semibold mb-4">Prochains départs</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm" id="departures-table">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Trajet</th>
+                                        <th class="px-3 py-2 text-left">Heure départ</th>
+                                        <th class="px-3 py-2 text-left">Bus</th>
+                                        <th class="px-3 py-2 text-left">Places restantes</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="departures-body">
+                                    <tr>
+                                        <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">Aucun départ programmé</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Autres vues (initialement cachées) -->
+                <div id="buses-view" class="view hidden">
+                    <!-- Contenu de la vue Gestion des bus -->
+                </div>
+
+                <div id="routes-view" class="view hidden">
+                    <!-- Contenu de la vue Gestion des trajets -->
+                </div>
+
+                <div id="agents-view" class="view hidden">
+                    <!-- Contenu de la vue Gestion des agents -->
+                </div>
+
+                <div id="passengers-view" class="view hidden">
+                    <!-- Contenu de la vue Gestion des passagers -->
+                </div>
+
+                <div id="reservations-view" class="view hidden">
+                    <!-- Contenu de la vue Réservations -->
+                </div>
+
+                <div id="settings-view" class="view hidden">
+                    <!-- Contenu de la vue Paramètres -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Database (simulated) - Toutes les valeurs initialisées à 0
+        let database = {
+            stats: {
+                totalBuses: 0,
+                activeBuses: 0,
+                availableBuses: 0,
+                maintenanceBuses: 0,
+                totalRoutes: 0,
+                todayReservations: 0,
+                yesterdayReservations: 0,
+                todayPassengers: 0,
+                yesterdayPassengers: 0,
+                todayRevenue: 0,
+                yesterdayRevenue: 0,
+                totalCapacity: 0,
+                occupiedSeats: 0,
+                totalAgents: 0
+            },
+            buses: [],
+            routes: [],
+            agents: [],
+            passengers: [],
+            reservations: [],
+            activities: [],
+            departures: []
+        };
+
+        // Current state
+        let currentState = {
+            editingId: null,
+            confirmAction: null,
+            confirmCallback: null
+        };
+
+        // DOM Elements
+        const views = {
+            dashboard: document.getElementById('dashboard-view'),
+            buses: document.getElementById('buses-view'),
+            routes: document.getElementById('routes-view'),
+            agents: document.getElementById('agents-view'),
+            passengers: document.getElementById('passengers-view'),
+            reservations: document.getElementById('reservations-view'),
+            settings: document.getElementById('settings-view')
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('open');
+            });
+
+            document.getElementById('close-mobile-menu').addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.remove('open');
+            });
+
+            // Navigation
+            document.querySelectorAll('[data-view]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const viewName = this.getAttribute('data-view');
+                    showView(viewName);
+                    document.getElementById('mobile-menu').classList.remove('open');
+                });
+            });
+
+            // Export PDF button
+            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+
+            // Initial view
+            showView('dashboard');
+            updateDashboard();
+        });
+
+        // View management
+        function showView(viewName) {
+            // Hide all views
+            Object.values(views).forEach(view => {
+                view.classList.add('hidden');
+            });
+
+            // Show selected view
+            views[viewName].classList.remove('hidden');
+            document.getElementById('page-title').textContent = getViewTitle(viewName);
+
+            // Update the view content
+            switch(viewName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'buses':
+                    updateBusesList();
+                    break;
+                case 'routes':
+                    updateRoutesList();
+                    break;
+                case 'agents':
+                    updateAgentsList();
+                    break;
+                case 'passengers':
+                    updatePassengersList();
+                    break;
+                case 'reservations':
+                    updateReservationsList();
+                    break;
+            }
+        }
+
+        function getViewTitle(viewName) {
+            const titles = {
+                'dashboard': 'Tableau de bord',
+                'buses': 'Gestion des bus',
+                'routes': 'Gestion des trajets',
+                'agents': 'Gestion des agents',
+                'passengers': 'Gestion des passagers',
+                'reservations': 'Gestion des réservations',
+                'settings': 'Paramètres'
+            };
+            return titles[viewName] || 'Tableau de bord';
+        }
+
+        // Update dashboard with real-time data
+        function updateDashboard() {
+            // Update main statistics
+            document.getElementById('today-reservations').textContent = database.stats.todayReservations;
+            document.getElementById('today-passengers').textContent = database.stats.todayPassengers;
+            document.getElementById('today-revenue').textContent = database.stats.todayRevenue.toFixed(0) + ' FCFA';
+            
+            // Calculate changes
+            const reservationChange = 0;
+            const passengerChange = 0;
+            const revenueChange = 0;
+            
+            // Update change indicators
+            updateChangeIndicator('reservation-change', reservationChange);
+            updateChangeIndicator('passenger-change', passengerChange);
+            updateChangeIndicator('revenue-change', revenueChange);
+            
+            // Update bus statistics
+            const occupationRate = 0;
+            document.getElementById('occupation-rate').textContent = occupationRate + '%';
+            document.getElementById('active-buses').textContent = database.stats.activeBuses;
+            document.getElementById('available-buses').textContent = database.stats.availableBuses;
+            document.getElementById('maintenance-buses').textContent = database.stats.maintenanceBuses;
+            document.getElementById('total-capacity').textContent = database.stats.totalCapacity;
+            
+            // Update recent reservations
+            updateRecentReservations();
+            
+            // Update departures
+            updateDepartures();
+        }
+
+        function updateChangeIndicator(elementId, changeValue) {
+            const element = document.getElementById(elementId);
+            element.textContent = changeValue + '%';
+            element.classList.add('text-gray-600');
+            element.classList.remove('text-green-600', 'text-red-600');
+        }
+
+        function updateRecentReservations() {
+            const container = document.getElementById('recent-reservations');
+            container.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">Aucune réservation récente</td>
+                </tr>
+            `;
+        }
+
+        function updateDepartures() {
+            const container = document.getElementById('departures-body');
+            container.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">Aucun départ programmé</td>
+                </tr>
+            `;
+        }
+
+        function exportToPDF() {
+            alert('Exportation en PDF en cours... Cette fonctionnalité serait implémentée avec une bibliothèque comme jsPDF dans une application réelle.');
+        }
+
+        // Function to update data from other pages
+        function updateFromReservationPage(data) {
+            database.reservations.push(data);
+            database.stats.todayReservations++;
+            database.stats.todayPassengers += data.passengerCount || 1;
+            database.stats.todayRevenue += data.price || 0;
+            updateDashboard();
+        }
+
+        function updateFromPassengerPage(data) {
+            database.passengers.push(data);
+            updateDashboard();
+        }
+
+        function updateFromRoutesPage(data) {
+            database.routes.push(data);
+            database.stats.totalRoutes = database.routes.length;
+            updateDashboard();
+        }
+
+        function updateFromBusPage(data) {
+            database.buses.push(data);
+            database.stats.totalBuses = database.buses.length;
+            
+            // Update bus status counts
+            database.stats.activeBuses = database.buses.filter(b => b.status === 'active').length;
+            database.stats.availableBuses = database.buses.filter(b => b.status === 'available').length;
+            database.stats.maintenanceBuses = database.buses.filter(b => b.status === 'maintenance').length;
+            
+            // Update total capacity
+            database.stats.totalCapacity = database.buses.reduce((sum, bus) => sum + (bus.capacity || 0), 0);
+            updateDashboard();
+        }
+
+        function updateFromUsersPage(data) {
+            database.agents.push(data);
+            database.stats.totalAgents = database.agents.length;
+            updateDashboard();
+        }
+    </script>
+</body>
+</html>
